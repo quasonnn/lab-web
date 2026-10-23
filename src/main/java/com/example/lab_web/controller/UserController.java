@@ -17,7 +17,7 @@ public class UserController {
     // 查全部
     @GetMapping
     public List<User> list() {
-        // 这是 feature 分支加的代码
+        // 这是 feature 分支
         return userService.list();
     }
 
