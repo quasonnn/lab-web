@@ -18,6 +18,7 @@ public class UserController {
     @GetMapping
     public List<User> list() {
         // 这是 master 分支加代码
+        // 这是 feature 分支
         return userService.list();
     }
 
