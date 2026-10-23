@@ -17,7 +17,7 @@ public class UserController {
     // 查全部
     @GetMapping
     public List<User> list() {
-        // 这是主分支加的代码
+        // 这是 master 分支加代码
         return userService.list();
     }
 
