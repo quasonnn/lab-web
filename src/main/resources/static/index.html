@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>用户管理系统</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 30px; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .form-group { margin-bottom: 10px; }
+        input { padding: 5px; margin-right: 10px; }
+        button { padding: 6px 12px; cursor: pointer; }
+    </style>
+</head>
+<body>
+<div id="app">
+    <h2>用户列表</h2>
+    <div class="form-group">
+        <input v-model="form.username" placeholder="用户名">
+        <input v-model="form.password" placeholder="密码" type="password">
+        <input v-model="form.email" placeholder="邮箱">
+        <input v-model="form.age" placeholder="年龄" type="number">
+        <button @click="addUser">新增用户</button>
+    </div>
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>用户名</th>
+            <th>邮箱</th>
+            <th>年龄</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="user in users" :key="user.id">
+            <td>{{ user.id }}</td>
+            <td>{{ user.username }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.age }}</td>
+            <td>
+                <button @click="deleteUser(user.id)" style="color: red;">删除</button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    const { createApp, ref, onMounted } = Vue;
+
+    createApp({
+        setup() {
+            const users = ref([]);
+            const form = ref({ username: '', password: '', email: '', age: '' });
+            const API_URL = 'http://localhost:8080/users';
+
+            const fetchUsers = async () => {
+                try {
+                    const res = await axios.get(API_URL);
+                    users.value = res.data;
+                } catch (error) {
+                    alert('查询失败，请检查后端是否启动！');
+                }
+            };
+
+            const addUser = async () => {
+                if (!form.value.username || !form.value.password) {
+                    alert('用户名和密码不能为空');
+                    return;
+                }
+                try {
+                    await axios.post(API_URL, form.value);
+                    alert('新增成功！');
+                    form.value = { username: '', password: '', email: '', age: '' }; // 清空表单
+                    fetchUsers(); // 刷新列表
+                } catch (error) {
+                    alert('新增失败！');
+                }
+            };
+
+            const deleteUser = async (id) => {
+                if (confirm('确定要删除该用户吗？')) {
+                    try {
+                        await axios.delete(`${API_URL}/${id}`);
+                        fetchUsers(); // 刷新列表
+                    } catch (error) {
+                        alert('删除失败！');
+                    }
+                }
+            };
+
+            onMounted(() => {
+                fetchUsers();
+            });
+
+            return {
+                users,
+                form,
+                addUser,
+                deleteUser
+            };
+        }
+    }).mount('#app');
+</script>
+</body>
+</html>
